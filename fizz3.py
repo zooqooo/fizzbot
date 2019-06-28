@@ -52,6 +52,36 @@ def get_correct_answer(question_url):
             input('press enter to continue')
             return response.get('nextQuestion')
 
+# keep trying answers until a correct one is given
+def give_correct_answer(question_url, answer):
+    response = try_answer(question_url, answer)
+
+    if (response.get('result') == 'interview complete'):
+        print('congratulations!')
+        exit()
+
+    if (response.get('result') == 'correct'):
+        print('press enter to continue')
+        return response.get('nextQuestion')
+
+def find_answer(question_data):
+    responses = list()
+
+    try:
+        for number in question_data.get("numbers"):
+            response = ""
+            for rule in question_data.get("rules"):
+                if number % rule.get("number") == 0:
+                    response += rule.get("response")
+            if not response:
+                response = str(number)
+            responses.append(response)
+
+        return " ".join(responses)
+    except:
+        print("Try failed")
+        return "COBOL"
+
 # do the next question
 def do_question(domain, question_url):
     print_sep()
@@ -65,7 +95,7 @@ def do_question(domain, question_url):
     next_question = question_data.get('nextQuestion')
 
     if next_question: return next_question
-    return get_correct_answer(question_url)
+    return give_correct_answer(question_url, find_answer(question_data))
 
 
 def main():
